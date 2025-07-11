@@ -1,103 +1,399 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import {
+  Box,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Switch,
+  Button,
+  Typography,
+  Stack,
+  Slider,
+  Rating,
+  Autocomplete,
+  IconButton,
+  InputAdornment
+} from "@mui/material";
+
+import {
+  Visibility,
+  VisibilityOff,
+  AccountCircle,
+  Email,
+  Phone,
+  UploadFile
+} from "@mui/icons-material";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    date: "",
+    gender: "",
+    agree: false,
+    notifications: false,
+    description: "",
+    file: null,
+    role: "",
+    phone: "",
+    time: "",
+    rating: 3,
+    slider: 50,
+    country: ""
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const countries = ["India", "USA", "Canada", "Australia", "Germany"];
+
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
+    if (type === "checkbox") {
+      setFormData({ ...formData, [name]: checked });
+    } else if (type === "file") {
+      setFormData({ ...formData, file: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handlePhoneInput = (e) => {
+    const numeric = e.target.value.replace(/\D/g, "");
+    setFormData({ ...formData, phone: numeric });
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    const requiredFields = [
+      "name",
+      "email",
+      "password",
+      "date",
+      "phone",
+      "time",
+      "description",
+      "role",
+      "gender",
+      "country"
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        newErrors[field] = "This field is required";
+      }
+    });
+
+    if (!formData.file) newErrors.file = "File is required";
+    if (!formData.agree) newErrors.agree = "You must agree to continue";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      console.log("Form submitted:", formData);
+    }
+  };
+
+  const handleClear = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      date: "",
+      gender: "",
+      agree: false,
+      notifications: false,
+      description: "",
+      file: null,
+      role: "",
+      phone: "",
+      time: "",
+      rating: 0,
+      slider: 50,
+      country: ""
+    });
+    setErrors({});
+  };
+
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", margin: "2rem" }}>
+      <form onSubmit={handleSubmit} style={{ maxWidth: 600, width: "100%" }}>
+        <Typography variant="h5" mb={'2'} gutterBottom>
+          All Fields Form
+        </Typography>
+
+        <Stack spacing={2}>
+          <TextField
+            label="Full Name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.name}
+            helperText={errors.name}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <AccountCircle />
+                </InputAdornment>
+              )
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.email}
+            helperText={errors.email}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Email />
+                </InputAdornment>
+              )
+            }}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+
+          <TextField
+            label="Password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={formData.password}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.password}
+            helperText={errors.password}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+          <TextField
+            label="Date of Birth"
+            name="date"
+            type="date"
+            value={formData.date}
+            onChange={handleChange}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            error={!!errors.date}
+            helperText={errors.date}
+          />
+
+          <TextField
+            label="Phone Number"
+            name="phone"
+            type="tel"
+            inputProps={{ inputMode: "numeric", pattern: "[0-9]*", maxLength: 10 }}
+            value={formData.phone}
+            onChange={handlePhoneInput}
+            fullWidth
+            error={!!errors.phone}
+            helperText={errors.phone}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Phone />
+                </InputAdornment>
+              )
+            }}
+          />
+
+          <TextField
+            label="Preferred Time"
+            name="time"
+            type="time"
+            value={formData.time}
+            onChange={handleChange}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            error={!!errors.time}
+            helperText={errors.time}
+          />
+
+          <Autocomplete
+            options={countries}
+            value={formData.country}
+            onChange={(event, newValue) => {
+              setFormData({ ...formData, country: newValue });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Country"
+                error={!!errors.country}
+                helperText={errors.country}
+              />
+            )}
+          />
+
+          
+            <FormControl fullWidth error={!!errors.role}>
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              label="Role"
+            >
+              <MenuItem value="">
+                <em>Select Role</em>
+              </MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="guest">Guest</MenuItem>
+            </Select>
+            {errors.role && (
+              <Typography variant="caption" color="error">
+                {errors.role}
+              </Typography>
+            )}
+          </FormControl>
+
+          <RadioGroup row name="gender" value={formData.gender} onChange={handleChange}>
+            <FormControlLabel value="male" control={<Radio />} label="Male" />
+            <FormControlLabel value="female" control={<Radio />} label="Female" />
+            <FormControlLabel value="other" control={<Radio />} label="Other" />
+          </RadioGroup>
+          {errors.gender && (
+            <Typography variant="caption" color="error">
+              {errors.gender}
+            </Typography>
+          )}
+
+          <TextField
+            label="Description"
+            name="description"
+            multiline
+            minRows={3}
+            value={formData.description}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.description}
+            helperText={errors.description}
+          />
+
+          <Box>
+            <Button
+              variant="outlined"
+              component="label"
+              endIcon={<UploadFile />}
+            >
+              Upload File
+              <input
+                type="file"
+                name="file"
+                hidden
+                onChange={handleChange}
+                accept=".png,.jpg,.pdf"
+              />
+            </Button>
+            {formData.file && (
+              <Typography variant="body2" mt={1}>
+                Selected: {formData.file.name}
+              </Typography>
+            )}
+            {errors.file && (
+              <Typography variant="caption" color="error">
+                {errors.file}
+              </Typography>
+            )}
+          </Box>
+
+          <Typography gutterBottom>Experience (Slider)</Typography>
+          <Slider
+            value={formData.slider}
+            onChange={(e, val) => setFormData({ ...formData, slider: val })}
+            step={10}
+            marks
+            min={0}
+            max={100}
+            valueLabelDisplay="auto"
+          />
+
+          <Typography gutterBottom>Rating</Typography>
+          <Rating
+            name="rating"
+            value={formData.rating}
+            onChange={(e, newValue) => {
+              setFormData({ ...formData, rating: newValue });
+            }}
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="agree"
+                checked={formData.agree}
+                onChange={handleChange}
+              />
+            }
+            label="I agree to terms"
+          />
+          {errors.agree && (
+            <Typography variant="caption" color="error">
+              {errors.agree}
+            </Typography>
+          )}
+
+          <FormControlLabel
+            control={
+              <Switch
+                name="notifications"
+                checked={formData.notifications}
+                onChange={handleChange}
+              />
+            }
+            label="Enable Notifications"
+          />
+
+          <Stack direction="row" justifyContent="space-between" spacing={2}>
+            <Box sx={{ flex: 1 }}>
+              <Button
+                variant="outlined"
+                color="error"
+                fullWidth
+                onClick={handleClear}
+              >
+                Clear
+              </Button>
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Button variant="contained" type="submit" fullWidth>
+                Submit
+              </Button>
+            </Box>
+          </Stack>
+        </Stack>
+      </form>
+    </Box>
   );
 }
